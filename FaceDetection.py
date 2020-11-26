@@ -2,11 +2,18 @@
 import cv2
 import time
 import mtcnn
+import argparse
 import tensorflow as tf
 
 
-def print_hi(name):
-    print(f'Hi, {name}')
+def parser():
+    parsing = argparse.ArgumentParser(description='Face Detection system with MTCNN.')
+
+    parsing.add_argument('--image',
+                         type=str,
+                         default='data/face.jpg',
+                         help='Input image filepath')
+    return parsing.parse_args()
 
 
 def load_image(path):
@@ -50,10 +57,24 @@ if __name__ == '__main__':
     print(f'OPENCV package version = {cv2.__version__}')
     print(f'TENSORFLOW package version = {tf.__version__}')
     print(f'TENSORFLOW GPU device = {tf.test.is_gpu_available()}')
-    print_hi('MTCNN-TEST')
-    image = load_image("data/face.jpg")
+    print(f'Hi, MTCNN-TEST')
+
+    arguments = parser()
+
+    image = load_image(arguments.image)
     results, inference_time = detect_face(image)
-    ret = save_image(image, results, 'data/face.output.jpg')
-    if ret:
-        print(f'Inference time = {inference_time}')
-        print(results)
+    if len(results) > 0:
+        ret = save_image(image, results, 'data/face.output.jpg')
+        if ret:
+            print(f'Inference time = {inference_time}')
+            print("-------------------------------------------------")
+            for i in range(0, len(results)):
+                print(f"Result No = {i}")
+                print(f"Results BBOX = {results[i]['box']}")
+                print(f"Results CONFIDENCE = {results[i]['confidence']}")
+                print(f"Results KEYPOINTS = {results[i]['keypoints']}")
+                print("-------------------------------------------------")
+        else:
+            print('Cannot save the processed image, checkout your folder path.')
+    else:
+        print('No detected faces in the given image.')
