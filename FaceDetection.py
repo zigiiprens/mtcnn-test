@@ -1,13 +1,12 @@
 # This is a sample Python script that detect face in a image with MTCNN.
 import cv2
+import time
 import mtcnn
-
-print(mtcnn.__version__)
+import tensorflow as tf
 
 
 def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+    print(f'Hi, {name}')
 
 
 def load_image(path):
@@ -19,8 +18,10 @@ def load_image(path):
 def detect_face(img):
     """Detect face with MTCNN Package."""
     detector = mtcnn.MTCNN()
+    start_time = time.time()
     res = detector.detect_faces(img)
-    return res
+    inf_time = (time.time() - start_time)
+    return res, inf_time
 
 
 def save_image(img, res, save_path):
@@ -41,12 +42,18 @@ def save_image(img, res, save_path):
     cv2.circle(img, (keypoints['mouth_left']), 2, (255, 155, 0), 10)
     cv2.circle(img, (keypoints['mouth_right']), 2, (255, 155, 0), 10)
 
-    cv2.imwrite(save_path, cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
+    return cv2.imwrite(save_path, cv2.cvtColor(img, cv2.COLOR_RGB2BGR))
 
 
 if __name__ == '__main__':
+    print(f'MTCNN package version = {mtcnn.__version__}')
+    print(f'OPENCV package version = {cv2.__version__}')
+    print(f'TENSORFLOW package version = {tf.__version__}')
+    print(f'TENSORFLOW GPU device = {tf.test.is_gpu_available()}')
     print_hi('MTCNN-TEST')
     image = load_image("data/face.jpg")
-    results = detect_face(image)
-    save_image(image, results, 'data/face.output.jpg')
-    print(results)
+    results, inference_time = detect_face(image)
+    ret = save_image(image, results, 'data/face.output.jpg')
+    if ret:
+        print(f'Inference time = {inference_time}')
+        print(results)
