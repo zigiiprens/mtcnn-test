@@ -1,4 +1,6 @@
-# This is a sample Python script that detect face in a image with MTCNN.
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
 # Imports
 import cv2
 import time
@@ -9,9 +11,10 @@ import tensorflow as tf
 
 # Version controls
 print(f"MTCNN package version = {mtcnn.__version__ == '0.1.0'}")
+# noinspection PyUnresolvedReferences
 print(f"OPENCV package version = {cv2.__version__ >= '4.4.0'}")
 print(f"TENSORFLOW package version = {tf.__version__ >= '2.2.0'}")
-print(f"TENSORFLOW GPU device = {tf.test.is_gpu_available()}")
+print(f"TENSORFLOW GPU device = {tf.config.list_physical_devices()}")
 print(f"Hi, MTCNN-TEST")
 
 
@@ -31,6 +34,7 @@ def parser():
     return parsing.parse_args()
 
 
+# FaceDetection class
 class FaceDetection:
     def __init__(self, path):
         self.path = path
@@ -49,13 +53,18 @@ class FaceDetection:
         self.face_results = None
         self.face_numbers = None
 
-    def load_image(self):
+    def load_image(self) -> float:
         """
         Load image with OpenCV.
+        :return:
+            load_time: The time for loading the frame with OPENCV.
         """
+        start_time = time.time()
         self.image = cv2.cvtColor(cv2.imread(self.path), cv2.COLOR_BGR2RGB)
+        load_time = (time.time() - start_time)
+        return load_time
 
-    def detect_face(self):
+    def detect_face(self) -> float:
         """
         Detect face with MTCNN Package.
         :return:
@@ -67,7 +76,7 @@ class FaceDetection:
         self.face_numbers = len(self.face_results)
         return inf_time
 
-    def save_image(self, save_path):
+    def save_image(self, save_path) -> bool:
         """
         Save image with BB and 5 Face Landmark.
         :arg:
@@ -83,13 +92,13 @@ class FaceDetection:
                           (bounding_box[0], bounding_box[1]),
                           (bounding_box[0] + bounding_box[2], bounding_box[1] + bounding_box[3]),
                           (255, 155, 0),
-                          5)
+                          1)
 
-            cv2.circle(self.image, (keypoints['left_eye']), 2, (255, 155, 0), 10)
-            cv2.circle(self.image, (keypoints['right_eye']), 2, (255, 155, 0), 10)
-            cv2.circle(self.image, (keypoints['nose']), 2, (255, 155, 0), 10)
-            cv2.circle(self.image, (keypoints['mouth_left']), 2, (255, 155, 0), 10)
-            cv2.circle(self.image, (keypoints['mouth_right']), 2, (255, 155, 0), 10)
+            cv2.circle(self.image, (keypoints['left_eye']), 2, (255, 155, 0), 2)
+            cv2.circle(self.image, (keypoints['right_eye']), 2, (255, 155, 0), 2)
+            cv2.circle(self.image, (keypoints['nose']), 2, (255, 155, 0), 2)
+            cv2.circle(self.image, (keypoints['mouth_left']), 2, (255, 155, 0), 2)
+            cv2.circle(self.image, (keypoints['mouth_right']), 2, (255, 155, 0), 2)
 
         return cv2.imwrite(save_path, cv2.cvtColor(self.image, cv2.COLOR_RGB2BGR))
 
@@ -98,13 +107,15 @@ if __name__ == '__main__':
     # Local test
     arguments = parser()
     face_detector = FaceDetection(arguments.image)
-    face_detector.load_image()
+    loading_time = face_detector.load_image()
     inference_time = face_detector.detect_face()
 
     if face_detector.face_numbers > 0:
         ret = face_detector.save_image('data/output/face.output.jpg')
         if ret:
+            print(f'Image loading time = {loading_time}')
             print(f'Inference time = {inference_time}')
+            print(f'Image shape = {face_detector.image.shape}')
             print("-------------------------------------------------")
             for i in range(0, face_detector.face_numbers):
                 print(f"Result No = {i}")
