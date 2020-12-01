@@ -10,19 +10,22 @@ Make sure you have installed all the required packages or this will not work pro
 If needed, you can use an virtual env manager as:
 * `venv`
 * `pipenv`
-* `conda`
 
 ## Folders
 In the `mtcnn-test` project repository, you will need an extra folder inside as:
 * `data`
+* `data/input`
+* `data/output`
 
-Make sure to move an image in the `data` folder and rename it as `face.jpg`
+Make sure to move an image in the `data/input` folder and rename it as `face.jpg`
 
 ## Run the magic
 Finally, you will just need to run the following code with a simple line as:
 * `python FaceDetection.py --image <path>`
 
-and see the Magic.
+If you do not precise a `--image <path>`, the script will automatically use `data/input/face.jpg`.
+
+Now, see the Magic.
 
 ## Authors
 Samir Omar (zigiiprens)
